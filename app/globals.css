@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.a4-page {
+  width: 210mm;
+  height: 297mm;
+  margin: 0 auto;
+  background: white;
+  overflow: hidden;
+  position: relative;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .a4-page, .a4-page * {
+    visibility: visible;
+  }
+  .a4-page {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 210mm;
+    height: 297mm;
+  }
+}
+
+@page {
+  size: A4;
+  margin: 0;
+}
