@@ -1,4 +1,6 @@
 import Image from "next/image";
+import ConductCertificatePreview from "./ConductCertificatePreview";
+
 
 const fieldLabels = {
   nameofthestudent: 'Name of the Student',
@@ -24,7 +26,7 @@ const fieldLabels = {
   remarks: 'Remarks'
 };
 
-export default function TCPreview({ tc,onDownload, isDownloading }) {
+export default function TCPreview({ tc,onTCDownload, onCCDownload, isDownloadingTC, isDownloadingCC }) {
   const getFormattedDate = () => new Date().toLocaleDateString('en-GB');
 
   const formatDate = (dateString) => {
@@ -39,17 +41,28 @@ export default function TCPreview({ tc,onDownload, isDownloading }) {
   }));
 
   return (
-    <div>
-      <div className="flex justify-between items-center mt-4 bg-white">
+    <div className="flex flex-col items-center">
+      <div className="flex justify-between items-center mt-4 bg-white w-full mb-4">
         <h1 className="text-3xl font-bold">Preview</h1>
-        <button 
-          className="px-2 py-1 bg-blue-500 text-white rounded"
-          onClick={() => onDownload(tc)}
-          disabled={isDownloading}
-        >
-          {isDownloading ? 'Downloading...' : 'Download'}
-        </button>
+        <div>
+          <button 
+            className="px-2 py-1 bg-blue-500 text-white rounded mr-2"
+            onClick={onTCDownload}
+            disabled={isDownloadingTC || isDownloadingCC}
+          >
+            {isDownloadingTC ? 'Downloading TC...' : 'Download TC'}
+          </button>
+          <button 
+            className="px-2 py-1 bg-green-500 text-white rounded"
+            onClick={onCCDownload}
+            disabled={isDownloadingTC || isDownloadingCC}
+          >
+            {isDownloadingCC ? 'Downloading CC...' : 'Download CC'}
+          </button>
+        </div>
       </div>
+
+      <div className="flex flex-col items-center w-full">
       <div id="tc-preview-original" className="a4-page bg-white p-8 text-sm relative">
         <div className="absolute inset-4 border-4 border-black pointer-events-none"></div>
         <div className="relative z-10 flex flex-col justify-between min-h-[calc(297mm-4rem)] px-4">
@@ -79,7 +92,7 @@ export default function TCPreview({ tc,onDownload, isDownloading }) {
               <p>Hon. DIRECTOR</p>
             </div>
             <div className="border-t border-rose-500 mt-4 pt-1">
-              <p className="text-center text-[10px]">Kochi - 682 022, Kerala, India, Email: icrep@cusat.c.in, Mob: +91 8078019688</p>
+              <p className="text-center text-[10px]">Kochi - 682 022, Kerala, India, Email: icrep@cusat.ac.in, Mob: +91 8078019688</p>
             </div>
           </div>
         </div>
@@ -114,11 +127,20 @@ export default function TCPreview({ tc,onDownload, isDownloading }) {
               <p>Hon. DIRECTOR</p>
             </div>
             <div className="border-t border-rose-500 mt-4 pt-1">
-              <p className="text-center text-[10px]">Kochi - 682 022, Kerala, India, Email: icrep@cusat.c.in, Mob: +91 8078019688</p>
+              <p className="text-center text-[10px]">Kochi - 682 022, Kerala, India, Email: icrep@cusat.ac.in, Mob: +91 8078019688</p>
             </div>
           </div>
         </div>
       </div>
+      
+      <div id="conduct-certificate-original" className="mt-8">
+        <ConductCertificatePreview data={tc} />
+      </div>
+
+      <div id="conduct-certificate-copy" className="mt-8">
+        <ConductCertificatePreview data={tc} isCopy={true} />
+      </div>
+    </div>
     </div>
   );
 }
