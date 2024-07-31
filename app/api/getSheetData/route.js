@@ -4,7 +4,18 @@ import { getSheetData } from '../../lib/sheets';
 export async function GET() {
   try {
     const data = await getSheetData();
-    return NextResponse.json(data);
+    
+    // Add cache control headers
+    const headers = new Headers();
+    headers.append('Cache-Control', 'no-store, max-age=0');
+    
+    // Log the data for debugging
+    console.log('API Data:', JSON.stringify(data));
+
+    return new NextResponse(JSON.stringify(data), {
+      status: 200,
+      headers: headers,
+    });
   } catch (error) {
     console.error('Error in getSheetData API route:', error);
     return NextResponse.json({ error: 'Failed to fetch sheet data', details: error.message }, { status: 500 });

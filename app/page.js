@@ -13,11 +13,12 @@ function useSheetData() {
   
     async function fetchData() {
       try {
-        const response = await fetch('/api/getSheetData');
+        const response = await fetch(`/api/getSheetData?t=${Date.now()}`);
         if (!response.ok) {
           throw new Error('Failed to fetch data');
         }
         const data = await response.json();
+        console.log('Fetched data:', data);  // Log the fetched data
         setTcData(data);
       } catch (error) {
         console.error('Error fetching data:', error);

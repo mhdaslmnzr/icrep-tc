@@ -21,14 +21,16 @@ export async function getSheetData() {
     const table = await gs.tables(SHEET_NAME);
     console.log('Table data fetched successfully');
     
-    return table.rows.map(row => {
+    const formattedData = table.rows.map(row => {
       const formattedRow = {};
       for (const [key, value] of Object.entries(row)) {
-        // Check if value is defined before accessing its 'value' property
         formattedRow[key.toLowerCase().replace(/\s+/g, '')] = value?.value || '';
       }
       return formattedRow;
     });
+
+    console.log('Formatted data:', JSON.stringify(formattedData));
+    return formattedData;
   } catch (error) {
     console.error('Detailed error in getSheetData:', error);
     throw error;
