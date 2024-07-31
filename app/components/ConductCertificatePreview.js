@@ -39,7 +39,7 @@ export default function ConductCertificatePreview({ data, isCopy = false }) {
                     <span className="font-bold">Date: </span><span>{getFormattedDate()}</span>
                 </div>
             </div>
-            <h4 className="text-center font-bold my-12 text-4xl">
+            <h4 className="text-center font-bold my-12 text-3xl underline">
               COURSE AND CONDUCT CERTIFICATE
               {isCopy && <span className="text-zinc-300 italic">(o/c)</span>}
             </h4>

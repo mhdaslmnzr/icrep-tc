@@ -8,6 +8,8 @@ export async function GET() {
     // Add cache control headers
     const headers = new Headers();
     headers.append('Cache-Control', 'no-store, max-age=0');
+    headers.append('Pragma', 'no-cache');
+    headers.append('Expires', '0');
     
     // Log the data for debugging
     console.log('API Data:', JSON.stringify(data));

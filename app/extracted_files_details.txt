@@ -109,11 +109,12 @@ function useSheetData() {
   
     async function fetchData() {
       try {
-        const response = await fetch('/api/getSheetData');
+        const response = await fetch(`/api/getSheetData?t=${Date.now()}`);
         if (!response.ok) {
           throw new Error('Failed to fetch data');
         }
         const data = await response.json();
+        console.log('Fetched data:', data);  // Log the fetched data
         setTcData(data);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -252,7 +253,18 @@ import { getSheetData } from '../../lib/sheets';
 export async function GET() {
   try {
     const data = await getSheetData();
-    return NextResponse.json(data);
+    
+    // Add cache control headers
+    const headers = new Headers();
+    headers.append('Cache-Control', 'no-store, max-age=0');
+    
+    // Log the data for debugging
+    console.log('API Data:', JSON.stringify(data));
+
+    return new NextResponse(JSON.stringify(data), {
+      status: 200,
+      headers: headers,
+    });
   } catch (error) {
     console.error('Error in getSheetData API route:', error);
     return NextResponse.json({ error: 'Failed to fetch sheet data', details: error.message }, { status: 500 });
@@ -302,18 +314,18 @@ export default function ConductCertificatePreview({ data, isCopy = false }) {
                     <span className="font-bold">Date: </span><span>{getFormattedDate()}</span>
                 </div>
             </div>
-            <h4 className="text-center font-bold my-12 text-4xl">
+            <h4 className="text-center font-bold my-12 text-3xl underline">
               COURSE AND CONDUCT CERTIFICATE
               {isCopy && <span className="text-zinc-300 italic">(o/c)</span>}
             </h4>
             <p className="mt-8 px-12 text-justify text-lg">
               This is to certify that Sri/Kum. 
               <span className="font-semibold"> {data.nameofthestudent} </span> 
-              Admn No. <span className="font-semibold">{data.admissionno} </span> 
+              (Student ID: <span className="font-semibold">{data.studentid}</span>) 
               is/was a student of this Centre for his/her
               <span className="font-semibold"> {data.nameoftheprogram} </span> course from
               <span className="font-semibold"> {formatDate(data.dateofadmission)} </span> to <span className="font-semibold">{formatDate(data.dateofleaving)}</span>. 
-              His/her conduct and character is/was <span className="px-1 mx-1">.......................................................................</span> during the period.
+              His/her conduct and character is/was<span className="px-1 mx-1"> ..................................</span>during the period.
             </p>
           </div>
         </div>
@@ -374,7 +386,7 @@ const fieldLabels = {
   whetherqualifiedforpromotion: 'Whether qualified for promotion',
   detailsofuniversityexaminationattended: 'Details of University Examination Attended',
   regnoofexamination: 'Registration Number of Examination',
-  datemonthandyearofexamination: 'Date,Month and year of examination',
+  datemonthandyearofexamination: 'Month and year of examination',
   nameoftheuniversityexaminationforwhichthestudentlastattended: 'Name of the University Examination for which the student last attended',
   whetherpassedfortheexamination: 'Whether Passed for the examination',
   detailsofpendingexaminationifany: 'Details of Pending examination if any',
@@ -595,14 +607,16 @@ export async function getSheetData() {
     const table = await gs.tables(SHEET_NAME);
     console.log('Table data fetched successfully');
     
-    return table.rows.map(row => {
+    const formattedData = table.rows.map(row => {
       const formattedRow = {};
       for (const [key, value] of Object.entries(row)) {
-        // Check if value is defined before accessing its 'value' property
         formattedRow[key.toLowerCase().replace(/\s+/g, '')] = value?.value || '';
       }
       return formattedRow;
     });
+
+    console.log('Formatted data:', JSON.stringify(formattedData));
+    return formattedData;
   } catch (error) {
     console.error('Detailed error in getSheetData:', error);
     throw error;
