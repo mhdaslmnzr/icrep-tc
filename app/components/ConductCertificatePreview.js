@@ -27,6 +27,8 @@ export default function ConductCertificatePreview({ data, isCopy = false }) {
               alt="Certificate Header" 
               width={830}
               height={150}
+              objectFit="contain"
+              priority
             />
           </div>
           
@@ -39,18 +41,24 @@ export default function ConductCertificatePreview({ data, isCopy = false }) {
                     <span className="font-bold">Date: </span><span>{getFormattedDate()}</span>
                 </div>
             </div>
-            <h4 className="text-center font-bold my-12 text-3xl underline">
+            <h4 className="text-center font-bold my-12 text-2xl underline">
               COURSE AND CONDUCT CERTIFICATE
               {isCopy && <span className="text-zinc-300 italic">(o/c)</span>}
             </h4>
-            <p className="mt-8 px-12 text-justify text-lg">
-              This is to certify that Sri/Kum. 
-              <span className="font-semibold"> {data.nameofthestudent} </span> 
-              (Student ID: <span className="font-semibold">{data.studentid}</span>) 
-              is/was a student of this Centre for his/her
-              <span className="font-semibold"> {data.nameoftheprogram} </span> course from
-              <span className="font-semibold"> {formatDate(data.dateofadmission)} </span> to <span className="font-semibold">{formatDate(data.dateofleaving)}</span>. 
-              His/her conduct and character is/was<span className="px-1 mx-1"> ..................................</span>during the period.
+            <p className="mt-8 px-4 sm:px-8 md:px-12 text-sm sm:text-base md:text-lg space-y-2">
+              <span className="block text-justify my-4">
+                This is to certify that Sri/Kum. <span className="font-semibold">{data.nameofthestudent}</span> 
+                (Student ID: <span className="font-semibold">{data.studentid}</span>)
+
+                is/was a student of this Centre for his/her 
+                <span className="font-semibold"> {data.nameoftheprogram} </span> course
+
+                from <span className="font-semibold">{formatDate(data.dateofadmission)}</span> to <span className="font-semibold">{formatDate(data.dateofleaving)}</span>.
+
+                His/her conduct and character is/was 
+                <span className="inline-block w-96 border-b border-black mx-1"></span> 
+                during the period.
+              </span>
             </p>
           </div>
         </div>

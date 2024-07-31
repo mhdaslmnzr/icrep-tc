@@ -11,6 +11,11 @@
   position: relative;
 }
 
+.a4-page img, .conduct-certificate-page img {
+  max-width: 100%;
+  height: auto;
+}
+
 @media screen and (max-width: 1200px) {
   .a4-page {
     transform: scale(0.9);
@@ -34,7 +39,10 @@
   body * {
     visibility: hidden;
   }
-  .a4-page, .a4-page * {
+  .a4-page, 
+  .a4-page *,
+  .conduct-certificate-page,
+  .conduct-certificate-page * {
     visibility: visible;
   }
   .a4-page {
@@ -43,6 +51,22 @@
     top: 0;
     width: 210mm;
     height: 297mm;
+  }  
+
+  .conduct-certificate-page {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 220mm;
+    height: 180mm;
+  }
+  .conduct-certificate-page img {
+    max-width: 80%;
+    height: auto;
+  }
+  .a4-page img {
+    max-width: 100%;
+    height: auto;
   }
 }
 
@@ -69,3 +93,5 @@
 .dots .dot:nth-child(3) {
   animation-delay: 0.4s;
 }
+
+

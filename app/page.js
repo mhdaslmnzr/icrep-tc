@@ -6,6 +6,8 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import LoadingAnimation from './components/LoadingAnimation';
 
+export const dynamic = 'force-dynamic';
+
 function useSheetData() {
     const [tcData, setTcData] = useState([]);
     const [error, setError] = useState(null);

@@ -68,7 +68,14 @@ export default function TCPreview({ tc,onTCDownload, onCCDownload, isDownloading
         <div className="relative z-10 flex flex-col justify-between min-h-[calc(297mm-4rem)] px-4">
           <div>
             <div className="mb-8">
-              <Image src="/header.png" alt="Logo" width={788} height={100} />
+              <Image 
+                src="/header.png" 
+                alt="Logo" 
+                width={788} 
+                height={100} 
+                objectFit="contain"
+                priority
+              />
             </div>
             <div className="flex justify-between items-center mb-8">
               <div><span className="font-bold">T C No:</span> {tc['tcno']}</div>
