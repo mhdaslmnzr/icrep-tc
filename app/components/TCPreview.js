@@ -17,7 +17,7 @@ const fieldLabels = {
   whetherqualifiedforpromotion: 'Whether qualified for promotion',
   detailsofuniversityexaminationattended: 'Details of University Examination Attended',
   regnoofexamination: 'Registration Number of Examination',
-  datemonthandyearofexamination: 'Date,Month and year of examination',
+  datemonthandyearofexamination: 'Month and year of examination',
   nameoftheuniversityexaminationforwhichthestudentlastattended: 'Name of the University Examination for which the student last attended',
   whetherpassedfortheexamination: 'Whether Passed for the examination',
   detailsofpendingexaminationifany: 'Details of Pending examination if any',

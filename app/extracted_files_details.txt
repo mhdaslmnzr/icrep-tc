@@ -103,38 +103,39 @@ import html2canvas from 'html2canvas';
 import LoadingAnimation from './components/LoadingAnimation';
 
 function useSheetData() {
-  const [tcData, setTcData] = useState([]);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  async function fetchData() {
-    try {
-      const response = await fetch('/api/getSheetData');
-      if (!response.ok) {
-        throw new Error('Failed to fetch data');
+    const [tcData, setTcData] = useState([]);
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true);
+  
+    async function fetchData() {
+      try {
+        const response = await fetch('/api/getSheetData');
+        if (!response.ok) {
+          throw new Error('Failed to fetch data');
+        }
+        const data = await response.json();
+        setTcData(data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setError(error.message);
+      } finally {
+        setLoading(false);
       }
-      const data = await response.json();
-      setTcData(data);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      setError(error.message);
-    } finally {
-      setLoading(false);
     }
+  
+    useEffect(() => {
+      fetchData();
+    }, []);
+  
+    return { tcData, error, loading, refreshData: fetchData };
   }
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  return { tcData, error, loading, refreshData: fetchData };
-}
 
 export default function Home() {
   const { tcData, error, loading, refreshData } = useSheetData();
   const [selectedTC, setSelectedTC] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
+  const [isDownloadingTC, setIsDownloadingTC] = useState(false);
+  const [isDownloadingCC, setIsDownloadingCC] = useState(false);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -142,14 +143,14 @@ export default function Home() {
     setIsRefreshing(false);
   };
 
-  const handleDownload = async (tc) => {
-    setIsDownloading(true);
+  const handleTCDownload = async (tc) => {
+    setIsDownloadingTC(true);
     const inputOriginal = document.getElementById('tc-preview-original');
     const inputCopy = document.getElementById('tc-preview-copy');
   
     if (!inputOriginal || !inputCopy) {
-      console.error('TC Preview element not found');
-      setIsDownloading(false);
+      console.error('TC Preview elements not found');
+      setIsDownloadingTC(false);
       return;
     }
   
@@ -168,12 +169,47 @@ export default function Home() {
       pdf.addPage();
       pdf.addImage(imgDataCopy, 'JPEG', 0, 0, 210, 297);
   
-      pdf.save(`${tc.tcno}_${tc.nameofthestudent.replace(/\s+/g, '_')}.pdf`);
+      pdf.save(`${tc.tcno}_${tc.nameofthestudent.replace(/\s+/g, '_')}_TC.pdf`);
     } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert('Failed to generate PDF. Please try again.');
+      console.error('Error generating TC PDF:', error);
+      alert('Failed to generate TC PDF. Please try again.');
     } finally {
-      setIsDownloading(false);
+      setIsDownloadingTC(false);
+    }
+  };
+
+  const handleCCDownload = async (tc) => {
+    setIsDownloadingCC(true);
+    const conductOriginal = document.getElementById('conduct-certificate-original');
+    const conductCopy = document.getElementById('conduct-certificate-copy');
+
+    if (!conductOriginal || !conductCopy) {
+      console.error('Conduct Certificate elements not found');
+      setIsDownloadingCC(false);
+      return;
+    }
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const canvasConductOriginal = await html2canvas(conductOriginal, { scale: 2, logging: false, useCORS: true });
+      const canvasConductCopy = await html2canvas(conductCopy, { scale: 2, logging: false, useCORS: true });
+
+      const imgDataConductOriginal = canvasConductOriginal.toDataURL('image/jpeg', 1.0);
+      const imgDataConductCopy = canvasConductCopy.toDataURL('image/jpeg', 1.0);
+
+      const pdf = new jsPDF('l', 'mm', [220, 180]);
+
+      pdf.addImage(imgDataConductOriginal, 'JPEG', 0, 0, 220, 180);
+      pdf.addPage();
+      pdf.addImage(imgDataConductCopy, 'JPEG', 0, 0, 220, 180);
+
+      pdf.save(`${tc.ccno}_${tc.nameofthestudent.replace(/\s+/g, '_')}_CC.pdf`);
+    } catch (error) {
+      console.error('Error generating CC PDF:', error);
+      alert('Failed to generate CC PDF. Please try again.');
+    } finally {
+      setIsDownloadingCC(false);
     }
   };
 
@@ -195,7 +231,13 @@ export default function Home() {
       </div>
       <div className="w-1/2 p-4 overflow-y-auto">
         {selectedTC && (
-          <TCPreview tc={selectedTC} onDownload={handleDownload} isDownloading={isDownloading} />
+          <TCPreview 
+            tc={selectedTC} 
+            onTCDownload={() => handleTCDownload(selectedTC)}
+            onCCDownload={() => handleCCDownload(selectedTC)}
+            isDownloadingTC={isDownloadingTC}
+            isDownloadingCC={isDownloadingCC}
+          />
         )}
       </div>
     </div>
@@ -215,6 +257,79 @@ export async function GET() {
     console.error('Error in getSheetData API route:', error);
     return NextResponse.json({ error: 'Failed to fetch sheet data', details: error.message }, { status: 500 });
   }
+}
+
+File: .\components\ConductCertificatePreview.js
+------------------------------------------------------------
+import Image from "next/image";
+
+export default function ConductCertificatePreview({ data, isCopy = false }) {
+  
+    const getFormattedDate = () => {
+        const date = new Date();
+        return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+      };
+
+      const formatDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+      };
+
+  return (
+    <div className="conduct-certificate-page bg-white p-4 text-sm relative" style={{ width: '220mm', height: '180mm' }}>
+      <div className="absolute inset-2 border-4 border-black pointer-events-none"></div>
+      <div className="relative z-10 flex flex-col justify-between h-full px-4">
+        <div>
+          <div className="my-8">
+            <Image 
+              src="/header.png" 
+              alt="Certificate Header" 
+              width={830}
+              height={150}
+            />
+          </div>
+          
+          <div className="my-12">
+            <div className="flex justify-between text-sm">
+                <div>
+                    <span className="font-bold">CC No: </span><span>{data.ccno}</span>
+                </div>
+                <div>
+                    <span className="font-bold">Date: </span><span>{getFormattedDate()}</span>
+                </div>
+            </div>
+            <h4 className="text-center font-bold my-12 text-4xl">
+              COURSE AND CONDUCT CERTIFICATE
+              {isCopy && <span className="text-zinc-300 italic">(o/c)</span>}
+            </h4>
+            <p className="mt-8 px-12 text-justify text-lg">
+              This is to certify that Sri/Kum. 
+              <span className="font-semibold"> {data.nameofthestudent} </span> 
+              Admn No. <span className="font-semibold">{data.admissionno} </span> 
+              is/was a student of this Centre for his/her
+              <span className="font-semibold"> {data.nameoftheprogram} </span> course from
+              <span className="font-semibold"> {formatDate(data.dateofadmission)} </span> to <span className="font-semibold">{formatDate(data.dateofleaving)}</span>. 
+              His/her conduct and character is/was <span className="px-1 mx-1">.......................................................................</span> during the period.
+            </p>
+          </div>
+        </div>
+        <div className="mt-auto">
+          <div className="flex justify-between items-end font-bold">
+            <p>Kochi -- 22</p>
+            <p>(Office Seal)</p>
+            <p>Hon. DIRECTOR</p>
+          </div>
+          <div className="border-t border-rose-500 my-4 pt-1">
+            <p className="text-center text-[10px]">Kochi - 682 022, Kerala, India, Email: icrep@cusat.ac.in, Mob: +91 8078019688</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 File: .\components\LoadingAnimation.js
@@ -241,6 +356,8 @@ export default LoadingAnimation;
 File: .\components\TCPreview.js
 ------------------------------------------------------------
 import Image from "next/image";
+import ConductCertificatePreview from "./ConductCertificatePreview";
+
 
 const fieldLabels = {
   nameofthestudent: 'Name of the Student',
@@ -266,7 +383,7 @@ const fieldLabels = {
   remarks: 'Remarks'
 };
 
-export default function TCPreview({ tc,onDownload, isDownloading }) {
+export default function TCPreview({ tc,onTCDownload, onCCDownload, isDownloadingTC, isDownloadingCC }) {
   const getFormattedDate = () => new Date().toLocaleDateString('en-GB');
 
   const formatDate = (dateString) => {
@@ -281,17 +398,28 @@ export default function TCPreview({ tc,onDownload, isDownloading }) {
   }));
 
   return (
-    <div>
-      <div className="flex justify-between items-center mt-4 bg-white">
+    <div className="flex flex-col items-center">
+      <div className="flex justify-between items-center mt-4 bg-white w-full mb-4">
         <h1 className="text-3xl font-bold">Preview</h1>
-        <button 
-          className="px-2 py-1 bg-blue-500 text-white rounded"
-          onClick={() => onDownload(tc)}
-          disabled={isDownloading}
-        >
-          {isDownloading ? 'Downloading...' : 'Download'}
-        </button>
+        <div>
+          <button 
+            className="px-2 py-1 bg-blue-500 text-white rounded mr-2"
+            onClick={onTCDownload}
+            disabled={isDownloadingTC || isDownloadingCC}
+          >
+            {isDownloadingTC ? 'Downloading TC...' : 'Download TC'}
+          </button>
+          <button 
+            className="px-2 py-1 bg-green-500 text-white rounded"
+            onClick={onCCDownload}
+            disabled={isDownloadingTC || isDownloadingCC}
+          >
+            {isDownloadingCC ? 'Downloading CC...' : 'Download CC'}
+          </button>
+        </div>
       </div>
+
+      <div className="flex flex-col items-center w-full">
       <div id="tc-preview-original" className="a4-page bg-white p-8 text-sm relative">
         <div className="absolute inset-4 border-4 border-black pointer-events-none"></div>
         <div className="relative z-10 flex flex-col justify-between min-h-[calc(297mm-4rem)] px-4">
@@ -321,7 +449,7 @@ export default function TCPreview({ tc,onDownload, isDownloading }) {
               <p>Hon. DIRECTOR</p>
             </div>
             <div className="border-t border-rose-500 mt-4 pt-1">
-              <p className="text-center text-[10px]">Kochi - 682 022, Kerala, India, Email: icrep@cusat.c.in, Mob: +91 8078019688</p>
+              <p className="text-center text-[10px]">Kochi - 682 022, Kerala, India, Email: icrep@cusat.ac.in, Mob: +91 8078019688</p>
             </div>
           </div>
         </div>
@@ -356,11 +484,20 @@ export default function TCPreview({ tc,onDownload, isDownloading }) {
               <p>Hon. DIRECTOR</p>
             </div>
             <div className="border-t border-rose-500 mt-4 pt-1">
-              <p className="text-center text-[10px]">Kochi - 682 022, Kerala, India, Email: icrep@cusat.c.in, Mob: +91 8078019688</p>
+              <p className="text-center text-[10px]">Kochi - 682 022, Kerala, India, Email: icrep@cusat.ac.in, Mob: +91 8078019688</p>
             </div>
           </div>
         </div>
       </div>
+      
+      <div id="conduct-certificate-original" className="mt-8">
+        <ConductCertificatePreview data={tc} />
+      </div>
+
+      <div id="conduct-certificate-copy" className="mt-8">
+        <ConductCertificatePreview data={tc} isCopy={true} />
+      </div>
+    </div>
     </div>
   );
 }

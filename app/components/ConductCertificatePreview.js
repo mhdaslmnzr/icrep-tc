@@ -46,11 +46,11 @@ export default function ConductCertificatePreview({ data, isCopy = false }) {
             <p className="mt-8 px-12 text-justify text-lg">
               This is to certify that Sri/Kum. 
               <span className="font-semibold"> {data.nameofthestudent} </span> 
-              Admn No. <span className="font-semibold">{data.admissionno} </span> 
+              (Student ID: <span className="font-semibold">{data.studentid}</span>) 
               is/was a student of this Centre for his/her
               <span className="font-semibold"> {data.nameoftheprogram} </span> course from
               <span className="font-semibold"> {formatDate(data.dateofadmission)} </span> to <span className="font-semibold">{formatDate(data.dateofleaving)}</span>. 
-              His/her conduct and character is/was <span className="px-1 mx-1">.......................................................................</span> during the period.
+              His/her conduct and character is/was<span className="px-1 mx-1"> ..................................</span>during the period.
             </p>
           </div>
         </div>
