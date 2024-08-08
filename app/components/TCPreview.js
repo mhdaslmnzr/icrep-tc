@@ -35,9 +35,17 @@ export default function TCPreview({ tc,onTCDownload, onCCDownload, isDownloading
     return isNaN(date.getTime()) ? dateString : date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
+  const formatMonthAndYear = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return isNaN(date.getTime()) ? dateString : date.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+};
+
   const formattedData = Object.entries(fieldLabels).map(([key, label]) => ({
     label,
-    value: key === 'datemonthandyearofexamination' ? tc[key] : (key.includes('date') ? formatDate(tc[key]) : tc[key])
+    value: key === 'datemonthandyearofexamination' 
+          ? formatMonthAndYear(tc[key])  
+          : (key.includes('date') ? formatDate(tc[key]) : tc[key])
   }));
 
   return (
