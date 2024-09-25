@@ -77,7 +77,7 @@ export default function TCPreview({ tc,onTCDownload, onCCDownload, isDownloading
           <div>
             <div className="mb-8">
               <Image 
-                src="/header.png" 
+                src="/Header2.png" 
                 alt="Logo" 
                 width={788} 
                 height={100} 

@@ -23,7 +23,7 @@ export default function ConductCertificatePreview({ data, isCopy = false }) {
         <div>
           <div className="my-8">
             <Image 
-              src="/header.png" 
+              src="/Header2.png" 
               alt="Certificate Header" 
               width={830}
               height={150}
