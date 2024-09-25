@@ -41,7 +41,7 @@ export default function ConductCertificatePreview({ data, isCopy = false }) {
                     <span className="font-bold">Date: </span><span>{getFormattedDate()}</span>
                 </div>
             </div>
-            <h4 className="text-center font-bold my-12 text-2xl underline">
+            <h4 className="text-center font-bold my-12 text-2xl">
               COURSE AND CONDUCT CERTIFICATE
               {isCopy && <span className="text-zinc-300 italic">(o/c)</span>}
             </h4>
@@ -56,7 +56,7 @@ export default function ConductCertificatePreview({ data, isCopy = false }) {
                 from <span className="font-semibold">{formatDate(data.dateofadmission)}</span> to <span className="font-semibold">{formatDate(data.dateofleaving)}</span>.
 
                 His/her conduct and character is/was 
-                <span className="inline-block w-96 border-b border-black mx-1"></span> 
+                <span className="inline-block w-96  mx-1">_______________________________________________</span> 
                 during the period.
               </span>
             </p>
